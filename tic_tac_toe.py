@@ -8,8 +8,13 @@ rnd = random.Random()
 def printf(format,*args): sys.stdout.write(format%args)
 
 class Board(object):
-    def __init__(self):
-        self.vals = [ ['-','-','-'],['-','-','-'],['-','-','-']]
+    def __init__(self, vals=None):
+        if not vals:
+            self.vals = [ ['-','-','-'],['-','-','-'],['-','-','-']]
+        else:
+            self.vals = [ [vals[0],vals[1],vals[2]],
+                          [vals[3],vals[4],vals[5]],
+                          [vals[6],vals[7],vals[8]]]
 
     def add_token(self, row, col, token):
         self.vals[row][col] = token
@@ -36,6 +41,22 @@ class Board(object):
                 if self.vals[r][c] == '-':
                     moves.add((r,c))
         return moves
+
+    def can_win(self, r, c, player):
+        #Can this player win up/down
+        r_set = {0, 1, 2}
+        r_set.remove(r) # Since we know where in this spot alreasdy
+        if self.vals[r_set.pop()][c] == player and self.vals[r_set.pop()][c]:
+            return True
+
+        #can this player win left/right
+        c_set = {0, 1, 2}
+        c_set.remove(c) # Since we know where in this spot alreasdy
+        if self.vals[r][c_set.pop()] == player and self.vals[r][c_set.pop()]:
+            return True
+        return False
+
+
 
 class BadMoveException(Exception):
     pass
