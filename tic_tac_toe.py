@@ -26,22 +26,23 @@ class Board(object):
         for r in range(0,3):
             for c in range(0,3):
                 if self.vals[r][c] == '-':
-                    return True
-        return False
+                    return False
+        return True
+
+    def get_legal_moves(self):
+        moves = set()
+        for r in range(0,3):
+            for c in range(0,3):
+                if self.vals[r][c] == '-':
+                    moves.add((r,c))
+        return moves
 
 class BadMoveException(Exception):
     pass
 
-def get_legal_moves(board):
-    moves = set()
-    for r in range(0,3):
-        for c in range(0,3):
-            if board.vals[r][c] == '-':
-                moves.add((r,c))
-    return moves
 
 def ai_move(b, side):
-    moves = get_legal_moves(b)
+    moves = b.get_legal_moves()
     if len(moves) <= 0:
         raise BadMoveException
     (r,c) = moves.pop()
@@ -55,20 +56,24 @@ def main():
     b = Board()
 
     while True:
+        if b.is_full():
+            printf("Board full\n")
+            break
         printf("Human make a move> ")
         (r, c) = getcords()
-        if (r, c) not in get_legal_moves(b):
+        if (r, c) not in b.get_legal_moves():
             printf("Illegal move try again\n")
             continue
         b.add_token(r,c, "X")
         b.print_board()
-        legal_moves = get_legal_moves(b )
+        if b.is_full():
+            printf("Board full\n")
+            break
+        legal_moves = b.get_legal_moves()
         (r, c) = rnd.choice(list(legal_moves))
         printf("Computer moves to (%d, %d)\n", r, c)
         b.add_token(r,c,"O")
         b.print_board()
-        if b.is_full():
-            break
 
 if __name__ == "__main__":
     main()
