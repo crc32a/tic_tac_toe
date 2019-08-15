@@ -119,17 +119,17 @@ def ai_move(b, ai,human):
     for (r, c) in legal_moves:
         if b.can_win(r, c, ai):
             b.add_token(r, c, ai)  # AI wins
-            return
+            return (r, c)
 
     # Otherwise block the human player if they can win next move
     for (r, c) in legal_moves:
         if b.can_win(r, c, human):
             b.add_token(r, c, ai) #Blocked
-            return
+            return (r, c)
     # Otherwise move at random
     (r, c) = rnd.choice(list(legal_moves))
     b.add_token(r, c, ai)
-    return
+    return (r, c)
 
 def getcords():
     line = sys.stdin.readline().strip()
@@ -139,11 +139,14 @@ def play():
     b = Board()
     human = "X"
     ai = "O"
+    b.display()
+    printf("You can move by typing in grid cordinates for examle:\n")
+    printf("0 0 or 1 1 then pressing enter\n")
     while True:
         if b.is_full():
             printf("Board full\n")
             break
-        printf("Human make a move> ")
+        printf("Human make a move (r,c)> ")
         sys.stdout.flush()
         (r, c) = getcords()
         if (r, c) not in b.get_legal_moves():
@@ -156,7 +159,7 @@ def play():
         if b.is_full():
             printf("Board full\n")
             break
-        ai_move(b, ai, human)
+        (r, c) = ai_move(b, ai, human)
         printf("Computer moves to (%d, %d)\n", r, c)
         b.display()
         if b.who_won():
@@ -167,4 +170,3 @@ def play():
 
 if __name__ == "__main__":
     play()
-
