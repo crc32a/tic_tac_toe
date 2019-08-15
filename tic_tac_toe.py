@@ -84,46 +84,87 @@ class Board(object):
                 return True
         return False
 
-
+    # This winner detector is nieve in that multiple people can win if
+    # you give it a bord like for example:
+    #
+    # X| |O
+    # X| |O
+    # X| |O
+    # Also instead of rewriting a variabht of can_win I just call
+    # can win 9 times and list the winners. I'll optimize it later if I'm
+    # bored
+    def who_won(self):
+        winners = set()
+        for r in range(0, 3):
+            for c in range(0, 3):
+                player = self.vals[r][c]
+                if player == "-":
+                    continue
+                if self.can_win(r,c,player):
+                    winners.add(player)
+        return winners
 
 class BadMoveException(Exception):
     pass
 
-
-def ai_move(b, side):
-    moves = b.get_legal_moves()
-    if len(moves) <= 0:
+def ai_move(b, ai,human):
+    # Get list of legal moves
+    legal_moves = b.get_legal_moves()
+    
+    # If no more moves then raise BadMoveException
+    if len(legal_moves) <= 0:
         raise BadMoveException
-    (r,c) = moves.pop()
-    b.add_token(r,c, side)
+
+    # Check if AI can win next move and win
+    for (r, c) in legal_moves:
+        if b.can_win(r, c, ai):
+            b.add_token(r, c, ai)  # AI wins
+            return
+
+    # Otherwise block the human player if they can win next move
+    for (r, c) in legal_moves:
+        if b.can_win(r, c, human):
+            b.add_token(r, c, ai) #Blocked
+            return
+    # Otherwise move at random
+    (r, c) = rnd.choice(list(legal_moves))
+    b.add_token(r, c, ai)
+    return
 
 def getcords():
     line = sys.stdin.readline().strip()
     return [int(ch) for ch in line.strip().split(" ") if len(ch) > 0]
 
-def main():
+def play():
     b = Board()
-
+    human = "X"
+    ai = "O"
     while True:
         if b.is_full():
             printf("Board full\n")
             break
         printf("Human make a move> ")
+        sys.stdout.flush()
         (r, c) = getcords()
         if (r, c) not in b.get_legal_moves():
             printf("Illegal move try again\n")
             continue
-        b.add_token(r,c, "X")
+        b.add_token(r, c, human)
         b.display()
+        if b.who_won():
+            break
         if b.is_full():
             printf("Board full\n")
             break
-        legal_moves = b.get_legal_moves()
-        (r, c) = rnd.choice(list(legal_moves))
+        ai_move(b, ai, human)
         printf("Computer moves to (%d, %d)\n", r, c)
-        b.add_token(r,c,"O")
         b.display()
+        if b.who_won():
+            break
+    if b.who_won():
+        winner = b.who_won().pop()
+        printf("Winner winner winner = %s\n", winner)
 
 if __name__ == "__main__":
-    main()
+    play()
 
