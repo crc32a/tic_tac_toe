@@ -19,7 +19,7 @@ class Board(object):
     def add_token(self, row, col, token):
         self.vals[row][col] = token
 
-    def print_board(self):
+    def display(self):
         v = self.vals
         printf("\n")
         printf("%s|%s|%s\n", v[0][0],v[0][1],v[0][2])
@@ -46,14 +46,42 @@ class Board(object):
         #Can this player win up/down
         r_set = {0, 1, 2}
         r_set.remove(r) # Since we know where in this spot alreasdy
-        if self.vals[r_set.pop()][c] == player and self.vals[r_set.pop()][c]:
+        v1 = self.vals[r_set.pop()][c]
+        v2 = self.vals[r_set.pop()][c]
+        if v1 == player and v2 == player:
             return True
 
         #can this player win left/right
         c_set = {0, 1, 2}
         c_set.remove(c) # Since we know where in this spot alreasdy
-        if self.vals[r][c_set.pop()] == player and self.vals[r][c_set.pop()]:
+        v1 = self.vals[r][c_set.pop()]
+        v2 = self.vals[r][c_set.pop()]
+        if v1 == player and v2 == player:
             return True
+
+        # Can this player win diagnally down right
+        down_right = { (0,0),(1,1),(2,2) }
+        if (r,c) in down_right:
+            # This is on a diagnal so lets try it
+            down_right.remove( (r,c) )
+            (ri, ci) = down_right.pop()
+            v1 = self.vals[ri][ci]
+            (ri, ci) = down_right.pop()
+            v2 = self.vals[ri][ci]
+            if v1 == player and v2 == player:
+                return True
+
+        # Can this player win diagnally up right
+        up_right = { (2,0), (1,1), (0,2) }
+        if (r,c) in up_right:
+            # This is on a diagnal so lets try it
+            up_right.remove( (r,c) )
+            (ri, ci) = up_right.pop()
+            v1 = self.vals[ri][ci]
+            (ri, ci) = up_right.pop()
+            v2 = self.vals[ri][ci]
+            if v1 == player and v2 == player:
+                return True
         return False
 
 
@@ -86,7 +114,7 @@ def main():
             printf("Illegal move try again\n")
             continue
         b.add_token(r,c, "X")
-        b.print_board()
+        b.display()
         if b.is_full():
             printf("Board full\n")
             break
@@ -94,7 +122,7 @@ def main():
         (r, c) = rnd.choice(list(legal_moves))
         printf("Computer moves to (%d, %d)\n", r, c)
         b.add_token(r,c,"O")
-        b.print_board()
+        b.display()
 
 if __name__ == "__main__":
     main()
